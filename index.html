@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARE Research Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#20242b;
+    --paper:#f7f5f0;
+    --panel:#ffffff;
+    --line:#e2ded4;
+    --navy:#2c3a55;
+    --navy-deep:#1c2740;
+    --muted:#8b8779;
+
+    --c-data:#5c8f76;
+    --c-data-soft:#e4efe8;
+    --c-topic:#e0a63c;
+    --c-topic-soft:#faf0d9;
+    --c-lit:#3f97a3;
+    --c-lit-soft:#e1f0f2;
+    --c-story:hsl(318, 8%, 39%);
+    --c-story-soft:#e1f0f2;
+    --c-dags:#c4708b;
+    --c-dags-soft:#f5e4ea;
+    --c-viz:#c1603c;
+    --c-viz-soft:#f5e2d7;
+    --c-due:#7b6fae;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    padding:48px 24px 80px;
+  }
+
+  .wrap{max-width:1280px;margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+    margin-bottom:36px;
+    border-bottom:2px solid var(--navy-deep);
+    padding-bottom:20px;
+  }
+  .masthead h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:42px;
+    letter-spacing:-0.01em;
+    color:var(--navy-deep);
+    margin:0;
+  }
+  .masthead .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 6px;
+  }
+  .masthead .meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    text-align:right;
+  }
+  .masthead .meta strong{color:var(--ink);}
+
+  /* ---------- Legend ---------- */
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+    margin-bottom:22px;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  /* ---------- Grid ---------- */
+  .board{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 1px 2px rgba(28,39,64,0.04);
+  }
+  .grid-row{
+    display:grid;
+    grid-template-columns:190px 1fr;
+  }
+  .grid-row + .grid-row{border-top:1px solid var(--line);}
+
+  .axis-row .grid-cell{padding:0;}
+  .axis-row{background:var(--navy-deep);}
+  .axis-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:#cfd6e4;
+    display:flex;
+    align-items:center;
+    padding:10px 14px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+  }
+  .axis-track{position:relative;height:34px;}
+  .axis-tick{
+    position:absolute;top:0;bottom:0;
+    border-left:1px solid rgba(255,255,255,0.14);
+    display:flex;align-items:center;
+  }
+  .axis-tick span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:#aeb8cc;
+    padding-left:6px;
+    white-space:nowrap;
+  }
+
+  .phase-cell{
+    padding:16px 14px;
+    font-size:13px;
+    color:var(--ink);
+    font-weight:600;
+    display:flex;
+    align-items:flex-start;
+  }
+  .track-cell{
+    position:relative;
+    padding:14px 0;
+    min-height:64px;
+  }
+  .track-cell .track-inner{position:relative;height:100%;min-height:36px;}
+
+  .gridlines {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  }
+  .gridline{
+    position:absolute;top:0;bottom:0;
+    border-left:1px dashed var(--line);
+  }
+
+  .bar{
+    position:absolute;
+    height:36px;
+    border-radius:7px;
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    font-size:13px;
+    font-weight:600;
+    color:#fff;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,0.12);
+    transition:filter 0.15s ease, box-shadow 0.15s ease;
+  }
+  .bar:hover{filter:brightness(1.06);box-shadow:0 3px 10px rgba(0,0,0,0.18);z-index:30;}
+
+  .due-row .track-cell{min-height:46px;}
+  .due-marker{
+    position:absolute;top:6px;bottom:6px;
+    width:2px;
+    background:var(--c-due);
+  }
+  .due-marker .due-date{
+    position:absolute;
+    top:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    color:var(--c-due);
+    white-space:nowrap;
+  }
+  .due-marker .due-dot{
+    position:absolute;
+    bottom:-4px;
+    left:50%;
+    transform:translateX(-50%);
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--c-due);
+  }
+
+  /* ---------- Tooltip ---------- */
+  #tooltip{
+    position:fixed;
+    z-index:100;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    box-shadow:0 10px 30px rgba(28,39,64,0.18);
+    padding:14px 16px;
+    width:250px;
+    font-size:12.5px;
+    line-height:1.55;
+    pointer-events:none;
+    display:none;
+  }
+  #tooltip .t-name{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:15px;
+    margin:0 0 8px;
+    color:var(--navy-deep);
+  }
+  #tooltip .t-row{display:flex;gap:6px;margin-bottom:3px;}
+  #tooltip .t-key{color:var(--muted);min-width:66px;}
+  #tooltip .t-val{font-weight:600;color:var(--ink);}
+  #tooltip .t-notes{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--ink);}
+
+  .footnote{
+    margin-top:18px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    text-align:right;
+  }
+
+  @media (max-width:760px){
+    .grid-row{grid-template-columns:96px 110px 1fr;}
+    .masthead h1{font-size:30px;}
+    .masthead{flex-direction:column;}
+    .masthead .meta{text-align:left;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <h1>CARE Research Timeline</h1>
+    </div>
+    <div class="meta">Academic Year <strong>2026&ndash;2027</strong><br>Last updated <strong id="lastUpdated"></strong></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="board" id="board"></div>
+
+  <p class="footnote">Hover any bar for details</p>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+/* =========================================================================
+   EDIT EVERYTHING BELOW THIS LINE TO CUSTOMIZE YOUR TIMELINE
+   ========================================================================= */
+
+// 1) Overall visible date range for the chart (the axis)
+const RANGE_START = "2026-08-24";
+const RANGE_END   = "2027-03-01";
+
+// 2) Rows are grouped by Project Type -> Phase. Each phase can contain
+//    multiple bars (tasks). "due" phases render as vertical date markers
+//    instead of bars.
+const DATA = [
+  {
+    phase: "Data",
+    type: "bars",
+    items: [
+      { name: "Finding Datasets/Data Collection", color: "data", start: "2026-09-14", end: "2026-11-20",
+        notes: "Identify source datasets, confirm access, and understand their data dictionaries. Start collecting your own data if applicable." },
+      { name: "Wrangling & Exploratory Work", color: "topic", start: "2026-10-19", end: "2027-01-15",
+        notes: "Clean, merge, and explore data; flag quality issues early. Get data into usable format." }
+    ]
+  },
+  {
+    phase: "Topic",
+    type: "bars",
+    items: [
+      { name: "Lit Review", color: "lit", start: "2026-08-24", end: "2026-09-18",
+        notes: "Survey existing research and identify gaps this project addresses." },
+      { name: "Refine Topic & Building DAGs", color: "dags", start: "2026-09-07", end: "2026-10-16",
+        notes: "Narrow research question; map causal assumptions with updated DAGs." },
+      { name: "Visualizations", color: "viz", start: "2026-11-13", end: "2027-01-29",
+        notes: "Draft and refine figures for the final deliverable." },
+      { name: "Storytelling", color: "story", start: "2027-01-18", end: "2027-02-19",
+        notes: "Put the story of your project together and connect it back to what it reveals about your community" }
+    ]
+  },
+  {
+    phase: "Products Due",
+    type: "due",
+    items: [
+      { name: "Literature review", date: "2026-09-18" },
+      { name: "Data analysis/collection update", date: "2026-10-23" },
+      { name: "Preliminary visualization(s)", date: "2026-11-20" },
+      { name: "Draft URD poster", date: "2027-02-12" }
+    ]
+  }
+];
+
+/* =========================================================================
+   RENDER ENGINE — no need to edit below this line
+   ========================================================================= */
+
+const COLOR_MAP = {
+  data:  { fill: "var(--c-data)",  soft: "var(--c-data-soft)",  label: "Data" },
+  topic: { fill: "var(--c-topic)", soft: "var(--c-topic-soft)", label: "Wrangling / Topic" },
+  lit:   { fill: "var(--c-lit)",   soft: "var(--c-lit-soft)",   label: "Lit Review" },
+  dags:  { fill: "var(--c-dags)",  soft: "var(--c-dags-soft)",  label: "Topic Refinement" },
+  viz:   { fill: "var(--c-viz)",   soft: "var(--c-viz-soft)",   label: "Visualizations" },
+  story: { fill: "var(--c-story)", soft: "var(--c-story-soft)", label: "Storytelling" },
+};
+
+const d = s => new Date(s + "T00:00:00");
+const rangeStart = d(RANGE_START);
+const rangeEnd   = d(RANGE_END);
+const totalDays  = (rangeEnd - rangeStart) / 86400000;
+
+function pct(dateStr){
+  const days = (d(dateStr) - rangeStart) / 86400000;
+  return Math.max(0, Math.min(100, (days / totalDays) * 100));
+}
+function fmt(dateStr){
+  return d(dateStr).toLocaleDateString('en-US', { month:'numeric', day:'numeric', year:'numeric' });
+}
+
+// Build month gridlines/labels
+function monthTicks(){
+  const ticks = [];
+  let cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+  while (cur <= rangeEnd) {
+    if (cur >= rangeStart) {
+      const days = (cur - rangeStart) / 86400000;
+      ticks.push({
+        left: (days / totalDays) * 100,
+        label: cur.toLocaleDateString('en-US', { month:'short', year: cur.getMonth()===0 ? '2-digit' : undefined })
+      });
+    }
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+  }
+  return ticks;
+}
+
+const board = document.getElementById('board');
+const ticks = monthTicks();
+
+// Axis row
+const axisRow = document.createElement('div');
+axisRow.className = 'grid-row axis-row';
+axisRow.innerHTML = `
+  <div class="axis-label">Category</div>
+  <div class="axis-track">
+    ${ticks.map(t => `<div class="axis-tick" style="left:${t.left}%"><span>${t.label}</span></div>`).join('')}
+  </div>`;
+board.appendChild(axisRow);
+
+// Content rows
+DATA.forEach((row, rowIdx) => {
+  const el = document.createElement('div');
+  el.className = 'grid-row' + (row.type === 'due' ? ' due-row' : '');
+
+  let trackHTML = `<div class="gridlines">${ticks.map(t => `<div class="gridline" style="left:${t.left}%"></div>`).join('')}</div>`;
+  let trackHeight = 36; // Default minimum height for the track
+
+  if (row.type === 'bars') {
+    // Sort items by start date so we can accurately assign rows without overlaps
+    const sortedItems = [...row.items].sort((a, b) => d(a.start) - d(b.start));
+    const rowEnds = []; // Keeps track of the end date of the last item in each row
+
+    trackHTML += sortedItems.map(item => {
+      const startD = d(item.start);
+      const endD = d(item.end);
+
+      // Find an available row where this item fits (start date >= end date of existing row)
+      let r = 0;
+      while (r < rowEnds.length && startD <= rowEnds[r]) {
+        r++;
+      }
+      rowEnds[r] = endD; // Update this row with the new end date
+
+      const c = COLOR_MAP[item.color] || COLOR_MAP.data;
+      const left = pct(item.start);
+      const width = Math.max(pct(item.end) - left, 2);
+      const topOffset = r * 44; // 36px for the bar + 8px gap between rows
+
+      return `<div class="bar"
+                data-name="${item.name}"
+                data-phase="${row.phase}"
+                data-start="${item.start}"
+                data-end="${item.end}"
+                data-notes="${(item.notes||'').replace(/"/g,'&quot;')}"
+                style="left:${left}%;width:${width}%;top:${topOffset}px;background:${c.fill};">${item.name}</div>`;
+    }).join('');
+    
+    // Dynamically calculate the track container height based on the number of rows generated
+    if (rowEnds.length > 0) {
+      trackHeight = (rowEnds.length * 44) - 8; // Adjust for the lack of gap on the final row
+    }
+  } else {
+    trackHTML += row.items.map(item => {
+      const left = pct(item.date);
+      return `<div class="due-marker"
+                data-name="${item.name}"
+                data-phase="${row.phase}"
+                data-start="${item.date}"
+                data-end="${item.date}"
+                data-notes=""
+                style="left:${left}%;">
+                <span class="due-date">${fmt(item.date)}</span>
+                <span class="due-dot"></span>
+              </div>`;
+    }).join('');
+  }
+
+  el.innerHTML = `
+    <div class="phase-cell">${row.phase}</div>
+    <div class="track-cell">
+      <div class="track-inner" style="height:${trackHeight}px">${trackHTML}</div>
+    </div>
+  `;
+  board.appendChild(el);
+});
+
+// Legend
+const legend = document.getElementById('legend');
+legend.innerHTML = Object.values(COLOR_MAP).map(c =>
+  `<span><i style="background:${c.fill}"></i>${c.label}</span>`
+).join('') + `<span><i style="background:var(--c-due)"></i>Product Due Date</span>`;
+
+// Tooltip behavior
+const tooltip = document.getElementById('tooltip');
+document.querySelectorAll('.bar, .due-marker').forEach(node => {
+  node.addEventListener('mousemove', (e) => {
+    const { name, phase, start, end, notes } = node.dataset;
+    const dateLine = start === end
+      ? `<div class="t-row"><span class="t-key">Date:</span><span class="t-val">${fmt(start)}</span></div>`
+      : `<div class="t-row"><span class="t-key">Start:</span><span class="t-val">${fmt(start)}</span></div>
+         <div class="t-row"><span class="t-key">End:</span><span class="t-val">${fmt(end)}</span></div>`;
+    tooltip.innerHTML = `
+      <p class="t-name">${name}</p>
+      <div class="t-row"><span class="t-key">Phase:</span><span class="t-val">${phase}</span></div>
+      ${dateLine}
+      ${notes ? `<div class="t-notes">${notes}</div>` : ''}
+    `;
+    tooltip.style.display = 'block';
+    const tw = 250, pad = 16;
+    let x = e.clientX + 18, y = e.clientY + 18;
+    if (x + tw + pad > window.innerWidth) x = e.clientX - tw - 18;
+    if (y + 160 > window.innerHeight) y = e.clientY - 160;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+  });
+  node.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+});
+
+document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+</script>
+</body>
+</html>
